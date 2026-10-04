@@ -5,6 +5,7 @@ export type Job = {
   location: string;
   remote: boolean;
   salary?: string;
+  type: "Full-time" | "Contract";
   seniority: "Junior" | "Mid" | "Senior" | "Staff" | "Manager";
   tags: string[];
   ats: string;
@@ -28,6 +29,7 @@ const JOBS: Job[] = [
     location: "Remote - US",
     remote: true,
     salary: "$170K–$230K",
+    type: "Full-time",
     seniority: "Senior",
     tags: ["Java", "Distributed Systems", "Payments"],
     ats: "Greenhouse",
@@ -50,6 +52,7 @@ const JOBS: Job[] = [
     location: "Remote - Global",
     remote: true,
     salary: "$140K–$190K",
+    type: "Full-time",
     seniority: "Mid",
     tags: ["TypeScript", "Node.js", "React", "Next.js"],
     ats: "Ashby",
@@ -72,6 +75,7 @@ const JOBS: Job[] = [
     location: "San Francisco, US",
     remote: false,
     salary: "$200K–$300K",
+    type: "Full-time",
     seniority: "Senior",
     tags: ["Python", "PyTorch", "LLM"],
     ats: "Greenhouse",
@@ -93,6 +97,7 @@ const JOBS: Job[] = [
     company: "Datadog",
     location: "Dublin, Europe",
     remote: false,
+    type: "Full-time",
     seniority: "Mid",
     tags: ["Kubernetes", "Go", "Observability"],
     ats: "Lever",
@@ -115,6 +120,7 @@ const JOBS: Job[] = [
     location: "Bengaluru, India",
     remote: false,
     salary: "₹30L–₹55L",
+    type: "Full-time",
     seniority: "Mid",
     tags: ["Node.js", "TypeScript", "Microservices"],
     ats: "Lever",
@@ -137,6 +143,7 @@ const JOBS: Job[] = [
     location: "Remote - Europe",
     remote: true,
     salary: "€120K–€170K",
+    type: "Full-time",
     seniority: "Staff",
     tags: ["Ruby", "Kubernetes", "Platform"],
     ats: "Workday",
@@ -159,6 +166,7 @@ const JOBS: Job[] = [
     location: "New York, US",
     remote: false,
     salary: "$150K–$200K",
+    type: "Full-time",
     seniority: "Senior",
     tags: ["React", "TypeScript", "Performance"],
     ats: "Greenhouse",
@@ -180,6 +188,7 @@ const JOBS: Job[] = [
     company: "GitLab",
     location: "Remote - Global",
     remote: true,
+    type: "Full-time",
     seniority: "Manager",
     tags: ["Ruby", "Go", "Leadership"],
     ats: "Greenhouse",
@@ -222,6 +231,35 @@ export function searchJobs(p: SearchParams = {}): Job[] {
     return true;
   }).sort((a, b) => b.firstSeen.localeCompare(a.firstSeen));
 }
+
+export const POPULAR_SEARCHES = ["Java", "Node.js", "React", "Python", "Kubernetes", "AI/ML", "Go"];
+
+export const CATEGORIES = [
+  { label: "Backend", q: "backend" },
+  { label: "Frontend", q: "frontend" },
+  { label: "Full Stack", q: "full stack" },
+  { label: "AI / ML", q: "ml" },
+  { label: "DevOps / SRE", q: "reliability" },
+  { label: "Eng. Management", q: "manager" },
+];
+
+export const similarJobs = (job: Job, n = 3) =>
+  searchJobs()
+    .filter((j) => j.id !== job.id)
+    .map((j) => ({ j, score: j.tags.filter((t) => job.tags.includes(t)).length + (j.seniority === job.seniority ? 1 : 0) }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, n)
+    .map((x) => x.j);
+
+export const jobStats = () => {
+  const all = searchJobs();
+  return {
+    total: all.length,
+    companies: new Set(all.map((j) => j.company)).size,
+    last24h: searchJobs({ days: 1 }).length,
+    remote: all.filter((j) => j.remote).length,
+  };
+};
 
 export const recentJobs = (n = 6) => searchJobs().slice(0, n);
 
