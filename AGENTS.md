@@ -35,3 +35,13 @@ Node version: see `.nvmrc` (24).
 - The backend owns the DB schema; other apps never connect to Postgres.
 - Keep `tjbackend/openapi.json` and `docs/ingest-api.md` in sync.
 - Follow `.editorconfig` (UTF-8, LF, 2 spaces; 4 for Python).
+
+## Local infrastructure
+
+Only Postgres runs in Docker (root `docker-compose.yml`); apps run natively. Credentials are
+dev-only. Connection strings are in `.env.example`.
+
+- Up: `docker compose up -d postgres` (creates `truejobs` and `truejobs_test`, both with `pg_trgm`)
+- Down: `docker compose down` (keeps data)
+- Reset: `docker compose down -v && docker compose up -d postgres` (wipes data, re-runs init script)
+- psql: `docker compose exec postgres psql -U truejobs` (add `-d truejobs_test` for the test DB)
