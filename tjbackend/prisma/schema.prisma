@@ -1,0 +1,124 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum CompanyStatus {
+  ACTIVE
+  PAUSED
+  ARCHIVED
+
+  @@map("company_status")
+}
+
+enum AtsType {
+  GREENHOUSE
+  LEVER
+  ASHBY
+  WORKDAY
+  SMARTRECRUITERS
+  JSONLD
+
+  @@map("ats_type")
+}
+
+enum CrawlRunStatus {
+  RUNNING
+  SUCCEEDED
+  FAILED
+  TIMED_OUT
+
+  @@map("crawl_run_status")
+}
+
+model AdminUser {
+  id           String    @id @default(uuid()) @db.Uuid
+  email        String    @unique // stored lowercase
+  name         String
+  passwordHash String    @map("password_hash")
+  isActive     Boolean   @default(true) @map("is_active")
+  lastLoginAt  DateTime? @map("last_login_at") @db.Timestamptz(3)
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@map("admin_users")
+}
+
+// The trigram GIN index company_name_trgm is created by raw SQL in the first migration.
+model Company {
+  id          String        @id @default(uuid()) @db.Uuid
+  name        String
+  slug        String        @unique
+  websiteUrl  String        @map("website_url")
+  logoUrl     String?       @map("logo_url")
+  description String?
+  hqLocation  String?       @map("hq_location")
+  status      CompanyStatus @default(ACTIVE)
+  notes       String? // internal only, never public
+  createdAt   DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  careerSources CareerSource[]
+
+  @@index([status])
+  @@map("companies")
+}
+
+model CareerSource {
+  id                   String          @id @default(uuid()) @db.Uuid
+  companyId            String          @map("company_id") @db.Uuid
+  atsType              AtsType         @map("ats_type")
+  identifier           String
+  config               Json            @default("{}")
+  careersPageUrl       String?         @map("careers_page_url")
+  isEnabled            Boolean         @default(true) @map("is_enabled")
+  crawlIntervalMinutes Int             @default(360) @map("crawl_interval_minutes")
+  nextCrawlAt          DateTime        @default(now()) @map("next_crawl_at") @db.Timestamptz(3)
+  lastCrawlAt          DateTime?       @map("last_crawl_at") @db.Timestamptz(3)
+  lastSuccessAt        DateTime?       @map("last_success_at") @db.Timestamptz(3)
+  lastRunStatus        CrawlRunStatus? @map("last_run_status")
+  lastError            String?         @map("last_error")
+  consecutiveFailures  Int             @default(0) @map("consecutive_failures")
+  createdAt            DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt            DateTime        @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  company   Company    @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  crawlRuns CrawlRun[]
+
+  @@unique([atsType, identifier])
+  @@index([isEnabled, nextCrawlAt])
+  @@index([companyId])
+  @@map("career_sources")
+}
+
+model CrawlRun {
+  id                 String         @id @default(uuid()) @db.Uuid
+  careerSourceId     String         @map("career_source_id") @db.Uuid
+  status             CrawlRunStatus
+  workerId           String         @map("worker_id")
+  crawlerVersion     String?        @map("crawler_version")
+  startedAt          DateTime       @default(now()) @map("started_at") @db.Timestamptz(3)
+  leaseExpiresAt     DateTime       @map("lease_expires_at") @db.Timestamptz(3)
+  finishedAt         DateTime?      @map("finished_at") @db.Timestamptz(3)
+  isCompleteSnapshot Boolean?       @map("is_complete_snapshot")
+  jobsReceived       Int            @default(0) @map("jobs_received")
+  jobsCreated        Int            @default(0) @map("jobs_created")
+  jobsUpdated        Int            @default(0) @map("jobs_updated")
+  jobsReopened       Int            @default(0) @map("jobs_reopened")
+  jobsClosed         Int            @default(0) @map("jobs_closed")
+  warning            String?
+  errorMessage       String?        @map("error_message")
+  stats              Json?
+  createdAt          DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt          DateTime       @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  careerSource CareerSource @relation(fields: [careerSourceId], references: [id], onDelete: Cascade)
+
+  @@index([careerSourceId, startedAt(sort: Desc)])
+  @@index([status, leaseExpiresAt])
+  @@map("crawl_runs")
+}

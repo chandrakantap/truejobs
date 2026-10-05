@@ -4,7 +4,7 @@ import { errorBody } from "../lib/errors.js";
 export type ReadinessCheck = () => Promise<void>;
 
 export interface HealthOptions {
-  /** Throws when a dependency is unavailable. TRUEJOBS-6 adds the DB ping. */
+  /** Throws when a dependency is unavailable. Overrides the default DB ping (used in tests). */
   readinessCheck?: ReadinessCheck;
 }
 

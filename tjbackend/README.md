@@ -38,7 +38,7 @@ naming it.
 | `PORT`         | `4000`        |                                                                  |
 | `HOST`         | `0.0.0.0`     |                                                                  |
 | `LOG_LEVEL`    | `info`        | pino level, or `silent`                                          |
-| `DATABASE_URL` | required      | Not used yet (Prisma arrives in TRUEJOBS-6); see `.env.example`. |
+| `DATABASE_URL` | required      | Postgres connection string used by Prisma; see `.env.example`. Tests use `DATABASE_URL_TEST`. |
 
 ## Layout
 
@@ -116,3 +116,13 @@ schema run `pnpm openapi:export` and commit the result; CI fails with "openapi.j
 docker build -t tjbackend tjbackend
 docker run --rm -p 4000:4000 -e DATABASE_URL=postgresql://truejobs:truejobs@host.docker.internal:5432/truejobs tjbackend
 ```
+
+## Database
+
+Schema and migrations live in `prisma/`. With Postgres running (`docker compose up -d postgres`):
+
+- `pnpm db:migrate`: create/apply migrations in development (`prisma migrate dev`)
+- `pnpm db:deploy`: apply existing migrations (CI, production)
+- `pnpm db:reset`, `pnpm db:studio`, `pnpm prisma:generate` (also runs on `postinstall`)
+
+The generated client (`src/generated/`) is git-ignored. Tests migrate and truncate `truejobs_test` automatically.
