@@ -21,10 +21,22 @@ describe("health", () => {
     expect(res.json()).toEqual({ status: "ok" });
   });
 
-  it("GET /readyz returns 200 when the check passes", async () => {
+  it("GET /readyz returns 200 when the database is reachable", async () => {
     app = await buildApp({ config });
     const res = await app.inject("/readyz");
     expect(res.statusCode).toBe(200);
+  });
+
+  it("GET /readyz returns 503 with a bad DATABASE_URL", async () => {
+    app = await buildApp({
+      config: {
+        ...config,
+        DATABASE_URL: "postgresql://truejobs:wrong@localhost:1/nope",
+      },
+    });
+    const res = await app.inject("/readyz");
+    expect(res.statusCode).toBe(503);
+    expect(res.json().error.code).toBe("NOT_READY");
   });
 
   it("GET /readyz returns 503 when the check fails", async () => {
@@ -71,7 +83,11 @@ describe("error handling", () => {
     const res = await app.inject("/conflict");
     expect(res.statusCode).toBe(409);
     expect(res.json()).toEqual({
-      error: { code: "CONFLICT", message: "Already exists", details: { field: "slug" } },
+      error: {
+        code: "CONFLICT",
+        message: "Already exists",
+        details: { field: "slug" },
+      },
     });
   });
 

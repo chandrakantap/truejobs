@@ -9,6 +9,7 @@ import {
 } from "fastify-type-provider-zod";
 import type { Config } from "./config.js";
 import { registerErrorHandlers } from "./plugins/errors.js";
+import { registerPrisma } from "./plugins/prisma.js";
 import { registerHealthRoutes, type HealthOptions } from "./plugins/health.js";
 import { ROUTE_SCOPES, registerRoutes } from "./plugins/routes.js";
 
@@ -16,7 +17,10 @@ export interface BuildAppOptions extends HealthOptions {
   config: Config;
 }
 
-export async function buildApp({ config, ...health }: BuildAppOptions): Promise<FastifyInstance> {
+export async function buildApp({
+  config,
+  ...health
+}: BuildAppOptions): Promise<FastifyInstance> {
   const app = Fastify({
     logger: {
       level: config.LOG_LEVEL,
@@ -46,6 +50,13 @@ export async function buildApp({ config, ...health }: BuildAppOptions): Promise<
   registerErrorHandlers(app);
   registerHealthRoutes(app, health);
   await registerRoutes(app);
+  const prisma = registerPrisma(app, config.DATABASE_URL);
+  registerHealthRoutes(app, {
+    readinessCheck: async () => {
+      await prisma.$queryRaw`SELECT 1`;
+    },
+    ...health,
+  });
 
   return app;
 }

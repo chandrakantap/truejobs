@@ -4,7 +4,8 @@ RUN corepack enable
 WORKDIR /app
 
 FROM base AS deps
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml prisma.config.ts ./
+COPY prisma ./prisma
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store pnpm install --frozen-lockfile
 
 FROM deps AS build
@@ -14,7 +15,8 @@ RUN pnpm build
 
 FROM base AS prod-deps
 COPY package.json pnpm-lock.yaml ./
-RUN --mount=type=cache,target=/root/.local/share/pnpm/store pnpm install --frozen-lockfile --prod
+# The Prisma client is generated in the build stage; skip the postinstall (the CLI is a dev dependency).
+RUN --mount=type=cache,target=/root/.local/share/pnpm/store pnpm install --frozen-lockfile --prod --ignore-scripts
 
 FROM node:24-alpine AS runtime
 ENV NODE_ENV=production
