@@ -28,10 +28,10 @@ Ready for Dev → In Progress (claim/lock) → Code Review | Blocked | Pending C
 
 Plane calls the unit of work a "work item"; this skill says "ticket". Use the Plane MCP tools by their full names, because short names can fail to resolve when several MCP servers are connected:
 
-- `mcp__claude_ai_Plane__state`: list the project's states and get their IDs.
-- `mcp__claude_ai_Plane__workitem`: list, retrieve and update (state changes) tickets.
-- `mcp__claude_ai_Plane__workitem_comment`: read and post comments.
-- `mcp__claude_ai_Plane__workitem_relation`, `workitem_link`, `workitem_attachment`: blockers, related tickets, links, attachments.
+- `mcp__Plane__state`: list the project's states and get their IDs.
+- `mcp__Plane__workitem`: list, retrieve and update (state changes) tickets.
+- `mcp__Plane__workitem_comment`: read and post comments.
+- `mcp__Plane__workitem_relation`, `workitem_link`, `workitem_attachment`: blockers, related tickets, links, attachments.
 
 Use `git` and `gh` through Bash. If a tool's parameters are unclear, check its schema before calling instead of guessing.
 

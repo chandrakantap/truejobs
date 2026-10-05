@@ -26,10 +26,10 @@ To Do → Grooming (claim/lock) → Ready for Dev | Pending Clarification
 
 Plane calls the unit of work a "work item"; this skill says "ticket". Use the Plane MCP tools by their full names, because short names can fail to resolve when several MCP servers are connected:
 
-- `mcp__claude_ai_Plane__state`: list the project's states and get their IDs.
-- `mcp__claude_ai_Plane__workitem`: list, retrieve and update (state changes) tickets.
-- `mcp__claude_ai_Plane__workitem_comment`: read and post comments.
-- `mcp__claude_ai_Plane__workitem_relation`, `workitem_link`, `workitem_attachment`: related tickets, links, attachments.
+- `mcp__Plane__state`: list the project's states and get their IDs.
+- `mcp__Plane__workitem`: list, retrieve and update (state changes) tickets.
+- `mcp__Plane__workitem_comment`: read and post comments.
+- `mcp__Plane__workitem_relation`, `workitem_link`, `workitem_attachment`: related tickets, links, attachments.
 
 If a tool's parameters are unclear, check its schema before calling instead of guessing.
 
@@ -102,7 +102,6 @@ Copy this checklist and tick items off as you go:
    ```
 
    Questions must be specific and minimal.
-
    - Bad: "Please provide more details."
    - Good: "When a job posting is deleted, should its applications be deleted or retained for audit?"
 

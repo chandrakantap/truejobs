@@ -40,7 +40,12 @@ Response `200`:
         "identifier": "stripe",
         "config": {},
         "careersPageUrl": "https://stripe.com/jobs",
-        "company": { "id": "uuid", "name": "Stripe", "slug": "stripe", "websiteUrl": "https://stripe.com" }
+        "company": {
+          "id": "uuid",
+          "name": "Stripe",
+          "slug": "stripe",
+          "websiteUrl": "https://stripe.com"
+        }
       }
     }
   ]
@@ -77,8 +82,16 @@ Request: `{ "jobs": JobPayload[] }` with 1–200 items. The body is at most 5 MB
 Response `200`:
 
 ```json
-{ "received": 120, "created": 3, "updated": 2, "reopened": 0, "unchanged": 115,
-  "rejected": [ { "index": 7, "externalId": "123", "reason": "applyUrl: Invalid url" } ] }
+{
+  "received": 120,
+  "created": 3,
+  "updated": 2,
+  "reopened": 0,
+  "unchanged": 115,
+  "rejected": [
+    { "index": 7, "externalId": "123", "reason": "applyUrl: Invalid url" }
+  ]
+}
 ```
 
 - Items that fail validation are **rejected individually** and do not fail the batch.
@@ -93,8 +106,13 @@ Finishes the run.
 Request:
 
 ```json
-{ "status": "SUCCEEDED", "isCompleteSnapshot": true, "errorMessage": null,
-  "crawlerVersion": "0.1.0", "stats": { "pages": 3, "durationMs": 5321 } }
+{
+  "status": "SUCCEEDED",
+  "isCompleteSnapshot": true,
+  "errorMessage": null,
+  "crawlerVersion": "0.1.0",
+  "stats": { "pages": 3, "durationMs": 5321 }
+}
 ```
 
 - `status`: `SUCCEEDED` or `FAILED`.
@@ -128,20 +146,20 @@ Returns `409 RUN_NOT_RUNNING` if the run is already finished.
 
 ## JobPayload
 
-| Field | Type | Req | Notes |
-|-------|------|-----|-------|
-| `externalId` | string 1–255 | yes | Stable ATS job id, unique within the source. |
-| `title` | string 1–300 | yes | |
-| `applyUrl` | http(s) URL | yes | Direct application URL on the ATS or company site. |
-| `sourceUrl` | http(s) URL | no | Public job page URL, if different from `applyUrl`. |
-| `descriptionHtml` | string ≤ 200 KB | yes (may be `""`) | Raw HTML. The backend sanitizes it. HTML-entity-escaped HTML is accepted and unescaped. |
-| `locations` | string[] ≤ 50 | yes (may be `[]`) | Raw location strings as shown on the ATS. |
-| `workplaceTypeHint` | `REMOTE \| HYBRID \| ONSITE` | no | Only when the ATS states it explicitly. |
-| `employmentTypeHint` | string ≤ 100 | no | Raw ATS value, e.g. "Full-time", "FULL_TIME", "Contract". |
-| `department` | string ≤ 200 | no | Raw department or team. |
-| `postedAt` | ISO-8601 datetime | no | The date the ATS says the job was published. Omit if unknown or only relative ("30+ days ago"). |
-| `salary` | object | no | `{ min?: number, max?: number, currency?: ISO-4217, period?: YEAR\|MONTH\|HOUR, raw?: string ≤ 300 }` |
-| `raw` | object ≤ 256 KB | yes | The original ATS record, stored for re-normalization. |
+| Field                | Type                         | Req               | Notes                                                                                                 |
+| -------------------- | ---------------------------- | ----------------- | ----------------------------------------------------------------------------------------------------- |
+| `externalId`         | string 1–255                 | yes               | Stable ATS job id, unique within the source.                                                          |
+| `title`              | string 1–300                 | yes               |                                                                                                       |
+| `applyUrl`           | http(s) URL                  | yes               | Direct application URL on the ATS or company site.                                                    |
+| `sourceUrl`          | http(s) URL                  | no                | Public job page URL, if different from `applyUrl`.                                                    |
+| `descriptionHtml`    | string ≤ 200 KB              | yes (may be `""`) | Raw HTML. The backend sanitizes it. HTML-entity-escaped HTML is accepted and unescaped.               |
+| `locations`          | string[] ≤ 50                | yes (may be `[]`) | Raw location strings as shown on the ATS.                                                             |
+| `workplaceTypeHint`  | `REMOTE \| HYBRID \| ONSITE` | no                | Only when the ATS states it explicitly.                                                               |
+| `employmentTypeHint` | string ≤ 100                 | no                | Raw ATS value, e.g. "Full-time", "FULL_TIME", "Contract".                                             |
+| `department`         | string ≤ 200                 | no                | Raw department or team.                                                                               |
+| `postedAt`           | ISO-8601 datetime            | no                | The date the ATS says the job was published. Omit if unknown or only relative ("30+ days ago").       |
+| `salary`             | object                       | no                | `{ min?: number, max?: number, currency?: ISO-4217, period?: YEAR\|MONTH\|HOUR, raw?: string ≤ 300 }` |
+| `raw`                | object ≤ 256 KB              | yes               | The original ATS record, stored for re-normalization.                                                 |
 
 The crawler (Pydantic) uses snake_case attributes and serializes to camelCase
 (`model_dump(by_alias=True, exclude_none=True, mode="json")`).

@@ -36,9 +36,9 @@ public read endpoints under `/v1/public` so a future `/v1/me` or `/v1/billing` c
                    cookie session, Caddy proxy)            │ /v1/public/*  (internal network)
                            ▼                               ▼
                  ┌────────────────────────────────────────────────────────┐
-                 │ tjbackend (Fastify + Prisma)  :4000                     │
-                 │  /v1/admin/*   /v1/public/*   /v1/ingest/*   /healthz   │
-                 │  normalization · job lifecycle engine · scheduler       │
+                 │ tjbackend (Fastify + Prisma)  :4000                    │
+                 │  /v1/admin/*   /v1/public/*   /v1/ingest/*   /healthz  │
+                 │  normalization · job lifecycle engine · scheduler      │
                  └─────────┬───────────────────────────────▲──────────────┘
                            │ Prisma                        │ Bearer token
                            ▼                               │ claim → jobs → complete
@@ -50,18 +50,18 @@ public read endpoints under `/v1/public` so a future `/v1/me` or `/v1/billing` c
 
 ### Key architecture decisions
 
-| # | Decision | Why |
-|---|----------|-----|
-| AD1 | **tjbackend is the only service that touches Postgres.** Prisma schema and migrations live in `tjbackend/prisma`. | One owner of the data model; the crawler and the UIs stay stateless. |
-| AD2 | **The backend schedules crawling and the crawler pulls work** (`claim` with lease, `heartbeat`, `jobs` batches, `complete`). | Admin "crawl now", per-source intervals, backoff and health all live in one place. Crawlers can scale horizontally without coordinating. |
-| AD3 | **The crawler sends raw-ish job data and the backend normalizes it** (seniority, category, tech tags, location/region, salary, HTML sanitization). `rawPayload` is stored, so jobs can be re-normalized later. | Classification rules live in one TypeScript codebase with tests and can be re-run over history. |
-| AD4 | **Job lifecycle is computed from full snapshots.** A run that ends `SUCCEEDED` with `isCompleteSnapshot=true` allows jobs that are missing to be counted as misses. A job closes after `JOB_CLOSE_MISS_THRESHOLD` (default 2) consecutive misses. | Avoids false closures from flaky crawls. History (versions and events) is the product's core asset. |
-| AD5 | **Search uses Postgres FTS (tsvector + GIN) plus pg_trgm.** No Elasticsearch in Phase 1. | Volumes of 10k–200k jobs fit comfortably. One less system to run. |
-| AD6 | **tjnext calls tjbackend server-side only** (RSC and route handlers). The backend is not exposed to browsers, except the admin API through the admin origin. | Smaller attack surface and no CORS. The backend can be private to the Docker network. |
-| AD7 | **The admin UI is same-origin with its API.** Caddy serves `admin.truejobs.tech` and proxies `/api/*` to the backend. Locally, the Vite dev server proxies `/api`. Session = httpOnly JWT cookie with `SameSite=Strict`, and mutations require `application/json`. | Simple, CSRF-resistant auth with no CORS. |
-| AD8 | **OpenAPI is the contract.** The backend generates `tjbackend/openapi.json` from Zod route schemas. tjnext and tjadminui generate TypeScript types from it (`openapi-typescript`). tjcrawler mirrors the ingest contract with Pydantic models. | Typed end to end, so agents can implement apps independently. |
-| AD9 | **Polyrepo-style folders in one git repo.** `tjnext/`, `tjbackend/`, `tjadminui/`, `tjcrawler/` each have their own package manager, scripts, Dockerfile and CI workflow (path-filtered). There is no root JS workspace. | Independent toolchains (Node and Python). Matches the existing `tjnext/`. |
-| AD10 | **Deploy with Docker Compose and Caddy on a single host.** Provider-agnostic. | Cheapest viable setup for a micro SaaS. Can move to managed services later. |
+| #    | Decision                                                                                                                                                                                                                                                           | Why                                                                                                                                      |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| AD1  | **tjbackend is the only service that touches Postgres.** Prisma schema and migrations live in `tjbackend/prisma`.                                                                                                                                                  | One owner of the data model; the crawler and the UIs stay stateless.                                                                     |
+| AD2  | **The backend schedules crawling and the crawler pulls work** (`claim` with lease, `heartbeat`, `jobs` batches, `complete`).                                                                                                                                       | Admin "crawl now", per-source intervals, backoff and health all live in one place. Crawlers can scale horizontally without coordinating. |
+| AD3  | **The crawler sends raw-ish job data and the backend normalizes it** (seniority, category, tech tags, location/region, salary, HTML sanitization). `rawPayload` is stored, so jobs can be re-normalized later.                                                     | Classification rules live in one TypeScript codebase with tests and can be re-run over history.                                          |
+| AD4  | **Job lifecycle is computed from full snapshots.** A run that ends `SUCCEEDED` with `isCompleteSnapshot=true` allows jobs that are missing to be counted as misses. A job closes after `JOB_CLOSE_MISS_THRESHOLD` (default 2) consecutive misses.                  | Avoids false closures from flaky crawls. History (versions and events) is the product's core asset.                                      |
+| AD5  | **Search uses Postgres FTS (tsvector + GIN) plus pg_trgm.** No Elasticsearch in Phase 1.                                                                                                                                                                           | Volumes of 10k–200k jobs fit comfortably. One less system to run.                                                                        |
+| AD6  | **tjnext calls tjbackend server-side only** (RSC and route handlers). The backend is not exposed to browsers, except the admin API through the admin origin.                                                                                                       | Smaller attack surface and no CORS. The backend can be private to the Docker network.                                                    |
+| AD7  | **The admin UI is same-origin with its API.** Caddy serves `admin.truejobs.tech` and proxies `/api/*` to the backend. Locally, the Vite dev server proxies `/api`. Session = httpOnly JWT cookie with `SameSite=Strict`, and mutations require `application/json`. | Simple, CSRF-resistant auth with no CORS.                                                                                                |
+| AD8  | **OpenAPI is the contract.** The backend generates `tjbackend/openapi.json` from Zod route schemas. tjnext and tjadminui generate TypeScript types from it (`openapi-typescript`). tjcrawler mirrors the ingest contract with Pydantic models.                     | Typed end to end, so agents can implement apps independently.                                                                            |
+| AD9  | **Polyrepo-style folders in one git repo.** `tjnext/`, `tjbackend/`, `tjadminui/`, `tjcrawler/` each have their own package manager, scripts, Dockerfile and CI workflow (path-filtered). There is no root JS workspace.                                           | Independent toolchains (Node and Python). Matches the existing `tjnext/`.                                                                |
+| AD10 | **Deploy with Docker Compose and Caddy on a single host.** Provider-agnostic.                                                                                                                                                                                      | Cheapest viable setup for a micro SaaS. Can move to managed services later.                                                              |
 
 ## 3. Repository layout
 
@@ -189,29 +189,29 @@ only when all of these hold:
 
 ## 8. Environments and ports
 
-| Service | Local | Production |
-|---------|-------|------------|
-| Postgres | `localhost:5432` (docker compose) | Compose volume, nightly `pg_dump` |
-| tjbackend | `http://localhost:4000` | Internal only `http://tjbackend:4000` |
-| tjnext | `http://localhost:3000` | `https://truejobs.tech` |
+| Service   | Local                                         | Production                                         |
+| --------- | --------------------------------------------- | -------------------------------------------------- |
+| Postgres  | `localhost:5432` (docker compose)             | Compose volume, nightly `pg_dump`                  |
+| tjbackend | `http://localhost:4000`                       | Internal only `http://tjbackend:4000`              |
+| tjnext    | `http://localhost:3000`                       | `https://truejobs.tech`                            |
 | tjadminui | `http://localhost:5173` (proxy `/api` → 4000) | `https://admin.truejobs.tech` (+ `/api` → backend) |
-| tjcrawler | `uv run python -m tjcrawler.worker` | Compose service, `CRAWLER_CONCURRENCY=4` |
+| tjcrawler | `uv run python -m tjcrawler.worker`           | Compose service, `CRAWLER_CONCURRENCY=4`           |
 
 ## 9. Modules and delivery order
 
-| Module | App | Depends on |
-|--------|-----|------------|
-| M1 Platform Foundation | repo | – |
-| M2 Backend Core & Data Model | tjbackend | M1 |
-| M3 Normalization & Classification | tjbackend | M2 |
-| M4 Ingestion & Job Lifecycle Engine | tjbackend | M2, M3 |
-| M5 Admin API | tjbackend | M2 (crawl-run views need M4) |
-| M6 Public Job API | tjbackend | M2, M3, M4 |
-| M7 Crawler Framework | tjcrawler | M1, M4 (contract) |
-| M8 ATS Spiders | tjcrawler | M7 |
-| M9 Admin UI | tjadminui | M5 |
-| M10 Job Board | tjnext | M6 |
-| M11 Deployment & Operations | deploy | all apps scaffolded |
+| Module                              | App       | Depends on                   |
+| ----------------------------------- | --------- | ---------------------------- |
+| M1 Platform Foundation              | repo      | –                            |
+| M2 Backend Core & Data Model        | tjbackend | M1                           |
+| M3 Normalization & Classification   | tjbackend | M2                           |
+| M4 Ingestion & Job Lifecycle Engine | tjbackend | M2, M3                       |
+| M5 Admin API                        | tjbackend | M2 (crawl-run views need M4) |
+| M6 Public Job API                   | tjbackend | M2, M3, M4                   |
+| M7 Crawler Framework                | tjcrawler | M1, M4 (contract)            |
+| M8 ATS Spiders                      | tjcrawler | M7                           |
+| M9 Admin UI                         | tjadminui | M5                           |
+| M10 Job Board                       | tjnext    | M6                           |
+| M11 Deployment & Operations         | deploy    | all apps scaffolded          |
 
 Critical path to the first real job on the board: M1 → M2 → M3 → M4 → M7 → M8 (Greenhouse) → M6 → M10.
 Dependencies between individual work items are modeled as Plane "blocked by" relations;
