@@ -35,6 +35,97 @@ enum CrawlRunStatus {
   @@map("crawl_run_status")
 }
 
+enum JobStatus {
+  ACTIVE
+  CLOSED
+
+  @@map("job_status")
+}
+
+enum WorkplaceType {
+  REMOTE
+  HYBRID
+  ONSITE
+  UNKNOWN
+
+  @@map("workplace_type")
+}
+
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERNSHIP
+  TEMPORARY
+  UNKNOWN
+
+  @@map("employment_type")
+}
+
+enum Seniority {
+  INTERN
+  JUNIOR
+  MID
+  SENIOR
+  STAFF
+  PRINCIPAL
+  MANAGER
+  DIRECTOR
+  UNKNOWN
+
+  @@map("seniority")
+}
+
+enum JobCategory {
+  BACKEND
+  FRONTEND
+  FULLSTACK
+  MOBILE
+  DATA_ENGINEERING
+  ML_AI
+  DEVOPS_SRE
+  SECURITY
+  QA
+  EMBEDDED
+  ENGINEERING_MANAGEMENT
+  OTHER_ENGINEERING
+  NON_ENGINEERING
+
+  @@map("job_category")
+}
+
+enum Region {
+  GLOBAL
+  US
+  EUROPE
+  INDIA
+  OTHER
+
+  @@map("region")
+}
+
+enum SalaryPeriod {
+  YEAR
+  MONTH
+  HOUR
+  UNKNOWN
+
+  @@map("salary_period")
+}
+
+enum JobEventType {
+  FIRST_SEEN
+  TITLE_CHANGED
+  DESCRIPTION_CHANGED
+  LOCATION_CHANGED
+  SALARY_CHANGED
+  CLOSED
+  REOPENED
+  REPOSTED
+
+  @@map("job_event_type")
+}
+
 model AdminUser {
   id           String    @id @default(uuid()) @db.Uuid
   email        String    @unique // stored lowercase
@@ -63,6 +154,7 @@ model Company {
   updatedAt   DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   careerSources CareerSource[]
+  jobs          Job[]
 
   @@index([status])
   @@map("companies")
@@ -88,6 +180,7 @@ model CareerSource {
 
   company   Company    @relation(fields: [companyId], references: [id], onDelete: Restrict)
   crawlRuns CrawlRun[]
+  jobs      Job[]
 
   @@unique([atsType, identifier])
   @@index([isEnabled, nextCrawlAt])
@@ -117,8 +210,122 @@ model CrawlRun {
   updatedAt          DateTime       @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   careerSource CareerSource @relation(fields: [careerSourceId], references: [id], onDelete: Cascade)
+  jobVersions  JobVersion[]
+  jobEvents    JobEvent[]
 
   @@index([careerSourceId, startedAt(sort: Desc)])
   @@index([status, leaseExpiresAt])
   @@map("crawl_runs")
+}
+
+// GIN indexes (tech_tags, regions, search_vector, title trigram) and the search_vector trigger
+// are created by raw SQL in the jobs migration.
+model Job {
+  id             String @id @default(uuid()) @db.Uuid
+  slug           String @unique
+  companyId      String @map("company_id") @db.Uuid
+  careerSourceId String @map("career_source_id") @db.Uuid
+  externalId     String @map("external_id")
+
+  status           JobStatus @default(ACTIVE)
+  isHidden         Boolean   @default(false) @map("is_hidden")
+  hiddenReason     String?   @map("hidden_reason")
+  duplicateOfJobId String?   @map("duplicate_of_job_id") @db.Uuid
+  repostOfJobId    String?   @map("repost_of_job_id") @db.Uuid
+
+  title           String
+  normalizedTitle String  @map("normalized_title")
+  descriptionHtml String  @map("description_html")
+  descriptionText String  @map("description_text")
+  applyUrl        String  @map("apply_url")
+  sourceUrl       String? @map("source_url")
+  department      String?
+
+  locationRaw   String        @map("location_raw")
+  locations     Json          @default("[]")
+  countryCodes  String[]      @map("country_codes")
+  regions       Region[]
+  workplaceType WorkplaceType @default(UNKNOWN) @map("workplace_type")
+
+  employmentType EmploymentType @default(UNKNOWN) @map("employment_type")
+  seniority      Seniority      @default(UNKNOWN)
+  category       JobCategory
+  techTags       String[]       @map("tech_tags")
+
+  salaryMin      Int?          @map("salary_min")
+  salaryMax      Int?          @map("salary_max")
+  salaryCurrency String?       @map("salary_currency") @db.Char(3)
+  salaryPeriod   SalaryPeriod? @map("salary_period")
+  salaryRaw      String?       @map("salary_raw")
+
+  postedAt          DateTime? @map("posted_at") @db.Timestamptz(3)
+  firstSeenAt       DateTime  @map("first_seen_at") @db.Timestamptz(3)
+  lastSeenAt        DateTime  @map("last_seen_at") @db.Timestamptz(3)
+  closedAt          DateTime? @map("closed_at") @db.Timestamptz(3)
+  lastSeenRunId     String?   @map("last_seen_run_id") @db.Uuid // plain column, no FK
+  consecutiveMisses Int       @default(0) @map("consecutive_misses")
+
+  contentHash       String                   @map("content_hash")
+  versionCount      Int                      @default(1) @map("version_count")
+  normalizerVersion Int                      @map("normalizer_version")
+  rawPayload        Json                     @map("raw_payload")
+  searchVector      Unsupported("tsvector")? @map("search_vector")
+
+  company      Company      @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  careerSource CareerSource @relation(fields: [careerSourceId], references: [id], onDelete: Restrict)
+  duplicateOf  Job?         @relation("Duplicates", fields: [duplicateOfJobId], references: [id], onDelete: SetNull)
+  duplicates   Job[]        @relation("Duplicates")
+  repostOf     Job?         @relation("Reposts", fields: [repostOfJobId], references: [id], onDelete: SetNull)
+  reposts      Job[]        @relation("Reposts")
+  versions     JobVersion[]
+  events       JobEvent[]
+
+  @@unique([careerSourceId, externalId])
+  @@index([status, firstSeenAt(sort: Desc)])
+  @@index([companyId, status])
+  @@index([careerSourceId, status])
+  @@index([category])
+  @@index([seniority])
+  @@index([duplicateOfJobId])
+  @@index([repostOfJobId])
+  @@map("jobs")
+}
+
+model JobVersion {
+  id              String        @id @default(uuid()) @db.Uuid
+  jobId           String        @map("job_id") @db.Uuid
+  versionNumber   Int           @map("version_number")
+  contentHash     String        @map("content_hash")
+  title           String
+  descriptionHtml String        @map("description_html")
+  locationRaw     String        @map("location_raw")
+  salaryMin       Int?          @map("salary_min")
+  salaryMax       Int?          @map("salary_max")
+  salaryCurrency  String?       @map("salary_currency")
+  salaryPeriod    SalaryPeriod? @map("salary_period")
+  salaryRaw       String?       @map("salary_raw")
+  capturedAt      DateTime      @default(now()) @map("captured_at") @db.Timestamptz(3)
+  crawlRunId      String?       @map("crawl_run_id") @db.Uuid
+
+  job      Job       @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  crawlRun CrawlRun? @relation(fields: [crawlRunId], references: [id], onDelete: SetNull)
+
+  @@unique([jobId, versionNumber])
+  @@map("job_versions")
+}
+
+model JobEvent {
+  id         String       @id @default(uuid()) @db.Uuid
+  jobId      String       @map("job_id") @db.Uuid
+  type       JobEventType
+  occurredAt DateTime     @default(now()) @map("occurred_at") @db.Timestamptz(3)
+  crawlRunId String?      @map("crawl_run_id") @db.Uuid
+  data       Json         @default("{}")
+
+  job      Job       @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  crawlRun CrawlRun? @relation(fields: [crawlRunId], references: [id], onDelete: SetNull)
+
+  @@index([jobId, occurredAt])
+  @@index([type, occurredAt])
+  @@map("job_events")
 }

@@ -16,6 +16,9 @@ describe("schema", () => {
       "career_sources",
       "companies",
       "crawl_runs",
+      "job_events",
+      "job_versions",
+      "jobs",
     ]);
 
     const enums = await prisma.$queryRaw<{ typname: string }[]>`
@@ -24,6 +27,14 @@ describe("schema", () => {
       "ats_type",
       "company_status",
       "crawl_run_status",
+      "employment_type",
+      "job_category",
+      "job_event_type",
+      "job_status",
+      "region",
+      "salary_period",
+      "seniority",
+      "workplace_type",
     ]);
 
     const idx = await prisma.$queryRaw<{ indexdef: string }[]>`
