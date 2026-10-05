@@ -11,9 +11,9 @@ export interface HealthOptions {
 export function registerHealthRoutes(app: FastifyInstance, options: HealthOptions = {}): void {
   const readinessCheck = options.readinessCheck ?? (async () => {});
 
-  app.get("/healthz", async () => ({ status: "ok" }));
+  app.get("/healthz", { schema: { hide: true } }, async () => ({ status: "ok" }));
 
-  app.get("/readyz", async (request, reply) => {
+  app.get("/readyz", { schema: { hide: true } }, async (request, reply) => {
     try {
       await readinessCheck();
       return { status: "ok" };

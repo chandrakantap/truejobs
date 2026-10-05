@@ -49,3 +49,7 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm test
       - run: pnpm build
+      - name: Check openapi.json is up to date
+        run: |
+          pnpm openapi:export
+          git diff --exit-code openapi.json || { echo "::error::openapi.json is stale — run pnpm openapi:export"; exit 1; }

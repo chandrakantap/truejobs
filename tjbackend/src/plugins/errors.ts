@@ -1,4 +1,5 @@
 import type { FastifyInstance } from "fastify";
+import { hasZodFastifySchemaValidationErrors } from "fastify-type-provider-zod";
 import { AppError, errorBody } from "../lib/errors.js";
 
 export function registerErrorHandlers(app: FastifyInstance): void {
@@ -13,6 +14,12 @@ export function registerErrorHandlers(app: FastifyInstance): void {
       return reply
         .status(error.statusCode)
         .send(errorBody(error.code, error.message, error.details));
+    }
+
+    if (hasZodFastifySchemaValidationErrors(error)) {
+      return reply
+        .status(400)
+        .send(errorBody("VALIDATION_ERROR", "Request validation failed", error.validation));
     }
 
     const statusCode =
