@@ -8,3 +8,4 @@ export {
   type Region,
   type WorkplaceType,
 } from "./location.js";
+export { classifyCategory, classifySeniority, normalizeTitle, type ClassifyCategoryInput } from "./classify.js";

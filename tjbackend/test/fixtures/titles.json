@@ -1,0 +1,430 @@
+[
+  {
+    "title": "Senior Software Engineer, Backend",
+    "category": "BACKEND",
+    "seniority": "SENIOR"
+  },
+  {
+    "title": "Staff Engineer",
+    "department": "Engineering",
+    "category": "OTHER_ENGINEERING",
+    "seniority": "STAFF"
+  },
+  {
+    "title": "Engineering Manager, Payments",
+    "category": "ENGINEERING_MANAGEMENT",
+    "seniority": "MANAGER"
+  },
+  {
+    "title": "Solutions Engineer",
+    "category": "NON_ENGINEERING",
+    "seniority": "UNKNOWN"
+  },
+  {
+    "title": "Sales Engineer",
+    "category": "NON_ENGINEERING",
+    "seniority": "UNKNOWN"
+  },
+  {
+    "title": "Software Engineer II",
+    "category": "OTHER_ENGINEERING",
+    "seniority": "MID"
+  },
+  {
+    "title": "SDE III",
+    "category": "OTHER_ENGINEERING",
+    "seniority": "SENIOR"
+  },
+  {
+    "title": "Machine Learning Engineer, LLM",
+    "category": "ML_AI",
+    "seniority": "MID"
+  },
+  {
+    "title": "Site Reliability Engineer",
+    "category": "DEVOPS_SRE",
+    "seniority": "MID"
+  },
+  {
+    "title": "iOS Engineer",
+    "category": "MOBILE",
+    "seniority": "MID"
+  },
+  {
+    "title": "Java Developer",
+    "category": "BACKEND",
+    "seniority": "MID"
+  },
+  {
+    "title": "Senior Full Stack Developer (m/f/d)",
+    "category": "FULLSTACK",
+    "seniority": "SENIOR"
+  },
+  {
+    "title": "Software Engineering Intern",
+    "category": "NON_ENGINEERING",
+    "seniority": "INTERN"
+  },
+  {
+    "title": "Product Manager",
+    "category": "NON_ENGINEERING",
+    "seniority": "UNKNOWN"
+  },
+  {
+    "title": "Data Scientist",
+    "category": "ML_AI",
+    "seniority": "MID"
+  },
+  {
+    "title": "Mechanical Engineer",
+    "category": "NON_ENGINEERING",
+    "seniority": "UNKNOWN"
+  },
+  {
+    "title": "Software Engineer",
+    "category": "OTHER_ENGINEERING",
+    "seniority": "MID"
+  },
+  {
+    "title": "Software Engineer I",
+    "category": "OTHER_ENGINEERING",
+    "seniority": "JUNIOR"
+  },
+  {
+    "title": "Software Engineer 1",
+    "category": "OTHER_ENGINEERING",
+    "seniority": "JUNIOR"
+  },
+  {
+    "title": "Software Engineer 2",
+    "category": "OTHER_ENGINEERING",
+    "seniority": "MID"
+  },
+  {
+    "title": "Software Engineer III",
+    "category": "OTHER_ENGINEERING",
+    "seniority": "SENIOR"
+  },
+  {
+    "title": "Software Engineer IV",
+    "category": "OTHER_ENGINEERING",
+    "seniority": "STAFF"
+  },
+  {
+    "title": "Software Engineer V",
+    "category": "OTHER_ENGINEERING",
+    "seniority": "PRINCIPAL"
+  },
+  {
+    "title": "Junior Software Developer",
+    "category": "OTHER_ENGINEERING",
+    "seniority": "JUNIOR"
+  },
+  {
+    "title": "Jr. Python Developer",
+    "category": "BACKEND",
+    "seniority": "JUNIOR"
+  },
+  {
+    "title": "Graduate Software Engineer",
+    "category": "OTHER_ENGINEERING",
+    "seniority": "JUNIOR"
+  },
+  {
+    "title": "New Grad Software Engineer",
+    "category": "OTHER_ENGINEERING",
+    "seniority": "JUNIOR"
+  },
+  {
+    "title": "Entry-Level Backend Engineer",
+    "category": "BACKEND",
+    "seniority": "JUNIOR"
+  },
+  {
+    "title": "Associate Software Engineer",
+    "category": "OTHER_ENGINEERING",
+    "seniority": "JUNIOR"
+  },
+  {
+    "title": "Associate Product Manager",
+    "category": "NON_ENGINEERING",
+    "seniority": "UNKNOWN"
+  },
+  {
+    "title": "Mid-Level Frontend Engineer",
+    "category": "FRONTEND",
+    "seniority": "MID"
+  },
+  {
+    "title": "Sr. Frontend Engineer",
+    "category": "FRONTEND",
+    "seniority": "SENIOR"
+  },
+  {
+    "title": "Tech Lead, Platform Engineer",
+    "category": "DEVOPS_SRE",
+    "seniority": "SENIOR"
+  },
+  {
+    "title": "Lead Android Developer",
+    "category": "MOBILE",
+    "seniority": "SENIOR"
+  },
+  {
+    "title": "Principal Software Engineer",
+    "category": "OTHER_ENGINEERING",
+    "seniority": "PRINCIPAL"
+  },
+  {
+    "title": "Distinguished Engineer",
+    "department": "Technology",
+    "category": "OTHER_ENGINEERING",
+    "seniority": "PRINCIPAL"
+  },
+  {
+    "title": "Staff Data Engineer",
+    "category": "DATA_ENGINEERING",
+    "seniority": "STAFF"
+  },
+  {
+    "title": "Senior Analytics Engineer",
+    "category": "DATA_ENGINEERING",
+    "seniority": "SENIOR"
+  },
+  {
+    "title": "Director of Engineering",
+    "category": "ENGINEERING_MANAGEMENT",
+    "seniority": "DIRECTOR"
+  },
+  {
+    "title": "VP of Engineering",
+    "category": "ENGINEERING_MANAGEMENT",
+    "seniority": "DIRECTOR"
+  },
+  {
+    "title": "Chief Technology Officer",
+    "category": "ENGINEERING_MANAGEMENT",
+    "seniority": "DIRECTOR"
+  },
+  {
+    "title": "Head of Engineering, Growth",
+    "category": "ENGINEERING_MANAGEMENT",
+    "seniority": "DIRECTOR"
+  },
+  {
+    "title": "Software Development Manager",
+    "category": "ENGINEERING_MANAGEMENT",
+    "seniority": "MANAGER"
+  },
+  {
+    "title": "Manager, Engineering",
+    "category": "ENGINEERING_MANAGEMENT",
+    "seniority": "MANAGER"
+  },
+  {
+    "title": "Senior Engineering Manager",
+    "category": "ENGINEERING_MANAGEMENT",
+    "seniority": "MANAGER"
+  },
+  {
+    "title": "Senior MLOps Engineer",
+    "category": "ML_AI",
+    "seniority": "SENIOR"
+  },
+  {
+    "title": "Applied Scientist II",
+    "category": "ML_AI",
+    "seniority": "MID"
+  },
+  {
+    "title": "Research Engineer, Computer Vision",
+    "category": "ML_AI",
+    "seniority": "MID"
+  },
+  {
+    "title": "DevOps Engineer",
+    "category": "DEVOPS_SRE",
+    "seniority": "MID"
+  },
+  {
+    "title": "Staff SRE",
+    "category": "DEVOPS_SRE",
+    "seniority": "STAFF"
+  },
+  {
+    "title": "Systems Engineer, Cloud Infrastructure",
+    "category": "DEVOPS_SRE",
+    "seniority": "MID"
+  },
+  {
+    "title": "Systems Engineer",
+    "category": "NON_ENGINEERING",
+    "seniority": "UNKNOWN"
+  },
+  {
+    "title": "Application Security Engineer",
+    "category": "SECURITY",
+    "seniority": "MID"
+  },
+  {
+    "title": "Senior Detection Engineer",
+    "category": "SECURITY",
+    "seniority": "SENIOR"
+  },
+  {
+    "title": "QA Engineer",
+    "category": "QA",
+    "seniority": "MID"
+  },
+  {
+    "title": "SDET II",
+    "category": "QA",
+    "seniority": "MID"
+  },
+  {
+    "title": "Senior Test Automation Engineer",
+    "category": "QA",
+    "seniority": "SENIOR"
+  },
+  {
+    "title": "React Native Developer",
+    "category": "MOBILE",
+    "seniority": "MID"
+  },
+  {
+    "title": "Embedded Firmware Engineer",
+    "category": "EMBEDDED",
+    "seniority": "MID"
+  },
+  {
+    "title": "Senior FPGA Engineer",
+    "category": "EMBEDDED",
+    "seniority": "SENIOR"
+  },
+  {
+    "title": "Fullstack Engineer",
+    "category": "FULLSTACK",
+    "seniority": "MID"
+  },
+  {
+    "title": "Senior Front-End Developer",
+    "category": "FRONTEND",
+    "seniority": "SENIOR"
+  },
+  {
+    "title": "React Developer",
+    "category": "FRONTEND",
+    "seniority": "MID"
+  },
+  {
+    "title": "Golang Engineer",
+    "category": "BACKEND",
+    "seniority": "MID"
+  },
+  {
+    "title": "Senior .NET Developer",
+    "category": "BACKEND",
+    "seniority": "SENIOR"
+  },
+  {
+    "title": "Node.js Engineer",
+    "category": "BACKEND",
+    "seniority": "MID"
+  },
+  {
+    "title": "Member of Technical Staff",
+    "category": "OTHER_ENGINEERING",
+    "seniority": "STAFF"
+  },
+  {
+    "title": "Software Architect",
+    "category": "OTHER_ENGINEERING",
+    "seniority": "MID"
+  },
+  {
+    "title": "Engineer",
+    "department": "Engineering",
+    "category": "OTHER_ENGINEERING",
+    "seniority": "MID"
+  },
+  {
+    "title": "Engineer",
+    "department": "R&D",
+    "category": "OTHER_ENGINEERING",
+    "seniority": "MID"
+  },
+  {
+    "title": "Engineer",
+    "department": "Sales",
+    "category": "NON_ENGINEERING",
+    "seniority": "UNKNOWN"
+  },
+  {
+    "title": "Engineer",
+    "category": "NON_ENGINEERING",
+    "seniority": "UNKNOWN"
+  },
+  {
+    "title": "Technical Support Engineer",
+    "category": "NON_ENGINEERING",
+    "seniority": "UNKNOWN"
+  },
+  {
+    "title": "Pre-Sales Consultant",
+    "category": "NON_ENGINEERING",
+    "seniority": "UNKNOWN"
+  },
+  {
+    "title": "Technical Recruiter",
+    "category": "NON_ENGINEERING",
+    "seniority": "UNKNOWN"
+  },
+  {
+    "title": "Senior Account Executive",
+    "category": "NON_ENGINEERING",
+    "seniority": "SENIOR"
+  },
+  {
+    "title": "Marketing Manager",
+    "department": "Marketing",
+    "category": "NON_ENGINEERING",
+    "seniority": "UNKNOWN"
+  },
+  {
+    "title": "Director of Finance",
+    "department": "Finance",
+    "category": "NON_ENGINEERING",
+    "seniority": "DIRECTOR"
+  },
+  {
+    "title": "Financial Analyst Intern",
+    "department": "Finance",
+    "category": "NON_ENGINEERING",
+    "seniority": "INTERN"
+  },
+  {
+    "title": "Software Developer Intern",
+    "category": "OTHER_ENGINEERING",
+    "seniority": "INTERN"
+  },
+  {
+    "title": "Working Student Backend",
+    "category": "BACKEND",
+    "seniority": "INTERN"
+  },
+  {
+    "title": "Senior Electrical Engineer",
+    "category": "NON_ENGINEERING",
+    "seniority": "SENIOR"
+  },
+  {
+    "title": "Backend Engineer (Remote)",
+    "category": "BACKEND",
+    "seniority": "MID"
+  },
+  {
+    "title": "Software Engineer [R12345]",
+    "category": "OTHER_ENGINEERING",
+    "seniority": "MID"
+  }
+]
