@@ -1,0 +1,19 @@
+# env files (keep examples)
+.env
+.env.*
+!.env.example
+
+# dependencies
+node_modules/
+.venv/
+__pycache__/
+
+# build and test output
+dist/
+coverage/
+.pytest_cache/
+.ruff_cache/
+
+# misc
+.DS_Store
+*.log

@@ -29,6 +29,13 @@ We do **not** claim that every company-sourced job is automatically legitimate o
 
 ---
 
+## Architecture
+
+See [docs/architecture.md](docs/architecture.md) for the Phase 1 architecture, and
+[AGENTS.md](AGENTS.md) for the app layout and contribution conventions.
+
+---
+
 ## Target Market
 
 ### Primary Users
