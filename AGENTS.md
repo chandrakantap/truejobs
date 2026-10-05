@@ -19,7 +19,7 @@ One folder per app in this single git repo.
 | Folder | Stack | Status | Dev | Lint | Test | Build | Port |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `tjnext` | Next.js 16, React 19, Tailwind 4, pnpm | exists | `pnpm dev` | `pnpm lint` | none yet | `pnpm build` | 3000 |
-| `tjbackend` | Fastify 5 + TypeScript | planned | planned | planned | planned | planned | 4000 |
+| `tjbackend` | Fastify 5 + TypeScript, pnpm | exists | `pnpm dev` | `pnpm lint` | `pnpm test` | `pnpm build` | 4000 |
 | `tjadminui` | Vite + React 19 + TypeScript | planned | planned | planned | planned | planned | 5173 |
 | `tjcrawler` | Python 3.12 + uv + Scrapy | planned | planned | planned | planned | planned | n/a |
 
