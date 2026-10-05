@@ -265,6 +265,9 @@ export const recentJobs = (n = 6) => searchJobs().slice(0, n);
 
 export const getJob = (id: string) => JOBS.find((j) => j.id === id);
 
+export const isNewJob = (firstSeen: string) =>
+  Date.now() - new Date(firstSeen).getTime() < 86400_000;
+
 export function timeAgo(iso: string): string {
   const mins = Math.max(1, Math.round((Date.now() - new Date(iso).getTime()) / 60000));
   if (mins < 60) return `${mins} min ago`;

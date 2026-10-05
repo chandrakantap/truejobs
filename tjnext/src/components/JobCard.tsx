@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { timeAgo, type Job } from "@/lib/jobs";
+import { isNewJob, timeAgo, type Job } from "@/lib/jobs";
 import ApplyButton from "./ApplyButton";
 import Badge from "./Badge";
 import CompanyLogo from "./CompanyLogo";
 
 export default function JobCard({ job }: { job: Job }) {
-  const isNew = Date.now() - new Date(job.firstSeen).getTime() < 86400_000;
+  const isNew = isNewJob(job.firstSeen);
   return (
     <article className="group flex flex-col gap-4 rounded-2xl border border-border bg-surface p-5 transition hover:border-brand/50 hover:shadow-md sm:flex-row sm:items-center">
       <CompanyLogo name={job.company} />

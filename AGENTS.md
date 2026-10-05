@@ -34,6 +34,8 @@ Node version: see `.nvmrc` (24).
 - Never commit `.env` files or secrets; commit only `.env.example`.
 - The backend owns the DB schema; other apps never connect to Postgres.
 - Keep `tjbackend/openapi.json` and `docs/ingest-api.md` in sync.
+- Every app has its own path-filtered CI workflow, `.github/workflows/<app>.yml`; new apps copy
+  `.github/workflows/tjnext.yml` (trigger on `<app>/**` and the workflow file, run from the app folder).
 - Follow `.editorconfig` (UTF-8, LF, 2 spaces; 4 for Python).
 
 ## Local infrastructure
