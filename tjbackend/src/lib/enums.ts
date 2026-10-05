@@ -1,5 +1,7 @@
 import { z } from "zod";
 import {
+  AtsType,
+  CrawlRunStatus,
   EmploymentType,
   JobCategory,
   JobEventType,
@@ -11,6 +13,8 @@ import {
 } from "../generated/prisma/enums.js";
 
 export {
+  AtsType,
+  CrawlRunStatus,
   EmploymentType,
   JobCategory,
   JobEventType,
@@ -30,3 +34,5 @@ export const JobCategorySchema = z.enum(JobCategory);
 export const RegionSchema = z.enum(Region);
 export const SalaryPeriodSchema = z.enum(SalaryPeriod);
 export const JobEventTypeSchema = z.enum(JobEventType);
+export const AtsTypeSchema = z.enum(AtsType);
+export const CrawlRunStatusSchema = z.enum(CrawlRunStatus);

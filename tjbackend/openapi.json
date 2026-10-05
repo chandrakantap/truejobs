@@ -65,6 +65,12 @@
         "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
         "type": "string"
       }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "scheme": "bearer",
+        "type": "http"
+      }
     }
   },
   "info": {
@@ -73,8 +79,48 @@
   },
   "openapi": "3.1.0",
   "paths": {
-    "/v1/public/ping": {
-      "get": {
+    "/v1/ingest/crawl-runs/claim": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "atsTypes": {
+                    "items": {
+                      "enum": [
+                        "GREENHOUSE",
+                        "LEVER",
+                        "ASHBY",
+                        "WORKDAY",
+                        "SMARTRECRUITERS",
+                        "JSONLD"
+                      ],
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "maxRuns": {
+                    "default": 1,
+                    "maximum": 20,
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "workerId": {
+                    "maxLength": 100,
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "workerId"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "200": {
             "content": {
@@ -82,15 +128,97 @@
                 "schema": {
                   "additionalProperties": false,
                   "properties": {
-                    "pong": {
-                      "enum": [
-                        true
-                      ],
-                      "type": "boolean"
+                    "runs": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "leaseExpiresAt": {
+                            "$ref": "#/components/schemas/IsoDateTime"
+                          },
+                          "runId": {
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                            "type": "string"
+                          },
+                          "source": {
+                            "additionalProperties": false,
+                            "properties": {
+                              "atsType": {
+                                "enum": [
+                                  "GREENHOUSE",
+                                  "LEVER",
+                                  "ASHBY",
+                                  "WORKDAY",
+                                  "SMARTRECRUITERS",
+                                  "JSONLD"
+                                ],
+                                "type": "string"
+                              },
+                              "careersPageUrl": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "company": {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "id": {
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                                    "type": "string"
+                                  },
+                                  "name": {
+                                    "type": "string"
+                                  },
+                                  "slug": {
+                                    "type": "string"
+                                  },
+                                  "websiteUrl": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "name",
+                                  "slug",
+                                  "websiteUrl"
+                                ],
+                                "type": "object"
+                              },
+                              "config": {},
+                              "id": {
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                                "type": "string"
+                              },
+                              "identifier": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "atsType",
+                              "identifier",
+                              "config",
+                              "careersPageUrl",
+                              "company"
+                            ],
+                            "type": "object"
+                          }
+                        },
+                        "required": [
+                          "runId",
+                          "leaseExpiresAt",
+                          "source"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
                     }
                   },
                   "required": [
-                    "pong"
+                    "runs"
                   ],
                   "type": "object"
                 }
@@ -98,7 +226,17 @@
             },
             "description": "Default Response"
           },
-          "500": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Default Response"
+          },
+          "401": {
             "content": {
               "application/json": {
                 "schema": {
@@ -109,8 +247,111 @@
             "description": "Default Response"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Lease due career sources for crawling",
         "tags": [
-          "public"
+          "ingest"
+        ]
+      }
+    },
+    "/v1/ingest/crawl-runs/{runId}/heartbeat": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "runId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {},
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "leaseExpiresAt": {
+                      "$ref": "#/components/schemas/IsoDateTime"
+                    }
+                  },
+                  "required": [
+                    "leaseExpiresAt"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Default Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Default Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Default Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Default Response"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Default Response"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Extend the lease of a running crawl run",
+        "tags": [
+          "ingest"
         ]
       }
     }

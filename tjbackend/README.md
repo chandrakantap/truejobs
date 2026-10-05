@@ -39,6 +39,8 @@ naming it.
 | `HOST`         | `0.0.0.0`     |                                                                  |
 | `LOG_LEVEL`    | `info`        | pino level, or `silent`                                          |
 | `DATABASE_URL` | required      | Postgres connection string used by Prisma; see `.env.example`. Tests use `DATABASE_URL_TEST`. |
+| `CRAWLER_API_TOKENS` | required in production | Comma-separated bearer tokens for `/v1/ingest`, each at least 32 chars. |
+| `CRAWL_LEASE_MINUTES` | `30` | Crawl-run lease length; extended by heartbeats. |
 
 ## Layout
 
@@ -88,7 +90,7 @@ const publicRoutes: ZodRoutes = async (app) => {
 };
 ```
 
-The sample `GET /v1/public/ping` should be removed by the first ticket that adds a real public route.
+The `/v1/ingest` scope requires `Authorization: Bearer <token>` (see `src/modules/ingest/auth.ts`).
 
 ### Pagination and shared schemas (`src/lib/schemas.ts`)
 

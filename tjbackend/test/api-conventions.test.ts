@@ -16,8 +16,9 @@ let app: FastifyInstance;
 afterEach(() => app.close());
 
 describe("routing and validation", () => {
-  it("serves the sample route under /v1/public", async () => {
+  it("serves routes registered under /v1/public", async () => {
     app = await buildApp({ config: loadConfig(env) });
+    app.get("/v1/public/ping", async () => ({ pong: true }));
     const res = await app.inject("/v1/public/ping");
     expect(res.statusCode).toBe(200);
     expect(res.json()).toEqual({ pong: true });
@@ -58,23 +59,24 @@ describe("/docs", () => {
   });
 
   it("returns 404 in production", async () => {
-    app = await buildApp({ config: loadConfig({ ...env, NODE_ENV: "production" }) });
+    app = await buildApp({ config: loadConfig({ ...env, NODE_ENV: "production", CRAWLER_API_TOKENS: "p".repeat(32) }) });
     const res = await app.inject("/docs");
     expect(res.statusCode).toBe(404);
   });
 });
 
 describe("OpenAPI document", () => {
-  it("contains the ping route, scope tags and ErrorResponse", async () => {
+  it("contains the ingest routes, scope tags and ErrorResponse", async () => {
     app = await buildApp({ config: loadConfig(env) });
     await app.ready();
     const doc = app.swagger() as {
       openapi: string;
-      paths: Record<string, { get?: { tags?: string[] } }>;
+      paths: Record<string, { get?: { tags?: string[] }; post?: { tags?: string[] } }>;
       components?: { schemas?: Record<string, unknown> };
     };
     expect(doc.openapi).toBe("3.1.0");
-    expect(doc.paths["/v1/public/ping"]?.get?.tags).toEqual(["public"]);
+    expect(doc.paths["/v1/public/ping"]).toBeUndefined();
+    expect(doc.paths["/v1/ingest/crawl-runs/claim"]?.post?.tags).toEqual(["ingest"]);
     expect(doc.components?.schemas).toHaveProperty("ErrorResponse");
     expect(doc.paths["/healthz"]).toBeUndefined();
   });

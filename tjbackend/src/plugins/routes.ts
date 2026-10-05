@@ -1,7 +1,6 @@
 import type { FastifyInstance, FastifyPluginAsync } from "fastify";
-import type { ZodTypeProvider } from "fastify-type-provider-zod";
-import { z } from "zod";
-import { ErrorResponse } from "../lib/schemas.js";
+import type { Config } from "../config.js";
+import { ingestRoutes } from "../modules/ingest/routes.js";
 
 export type RouteScope = "public" | "admin" | "ingest";
 
@@ -23,26 +22,12 @@ export function scope(name: RouteScope, routes: ZodRoutes): FastifyPluginAsync {
   };
 }
 
-const publicRoutes: ZodRoutes = async (app) => {
-  // Sample route proving the validation/OpenAPI pipeline. Remove it in the first ticket that adds
-  // a real public route.
-  app.withTypeProvider<ZodTypeProvider>().get(
-    "/ping",
-    {
-      schema: {
-        response: { 200: z.object({ pong: z.literal(true) }), 500: ErrorResponse },
-      },
-    },
-    async () => ({ pong: true as const }),
-  );
-};
-
 // Later tickets add routes (and per-scope auth hooks) to these.
+const publicRoutes: ZodRoutes = async () => {};
 const adminRoutes: ZodRoutes = async () => {};
-const ingestRoutes: ZodRoutes = async () => {};
 
-export async function registerRoutes(app: FastifyInstance): Promise<void> {
+export async function registerRoutes(app: FastifyInstance, config: Config): Promise<void> {
   await app.register(scope("public", publicRoutes), { prefix: "/v1/public" });
   await app.register(scope("admin", adminRoutes), { prefix: "/v1/admin" });
-  await app.register(scope("ingest", ingestRoutes), { prefix: "/v1/ingest" });
+  await app.register(scope("ingest", ingestRoutes(config)), { prefix: "/v1/ingest" });
 }

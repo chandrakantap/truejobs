@@ -39,6 +39,9 @@ export async function buildApp({
       openapi: "3.1.0",
       info: { title: "truejobs API", version: "1.0.0" },
       tags: ROUTE_SCOPES.map((name) => ({ name })),
+      components: {
+        securitySchemes: { bearerAuth: { type: "http", scheme: "bearer" } },
+      },
     },
     transform: jsonSchemaTransform,
     transformObject: jsonSchemaTransformObject,
@@ -48,8 +51,8 @@ export async function buildApp({
   }
 
   registerErrorHandlers(app);
-  await registerRoutes(app);
   const prisma = registerPrisma(app, config.DATABASE_URL);
+  await registerRoutes(app, config);
   registerHealthRoutes(app, {
     readinessCheck: async () => {
       await prisma.$queryRaw`SELECT 1`;
