@@ -124,5 +124,27 @@ Schema and migrations live in `prisma/`. With Postgres running (`docker compose 
 - `pnpm db:migrate`: create/apply migrations in development (`prisma migrate dev`)
 - `pnpm db:deploy`: apply existing migrations (CI, production)
 - `pnpm db:reset`, `pnpm db:studio`, `pnpm prisma:generate` (also runs on `postinstall`)
+- `pnpm db:seed`: load the dev dataset (below). `prisma migrate reset` also runs it automatically.
 
 The generated client (`src/generated/`) is git-ignored. Tests migrate and truncate `truejobs_test` automatically.
+
+### Dev seed
+
+`pnpm db:seed` (`prisma/seed.ts`) loads a deterministic dataset so the UIs and APIs can be built
+before the crawler produces real data. It is idempotent: companies upsert by slug, sources by
+`(atsType, identifier)`, jobs by `(careerSourceId, externalId)`, and crawl runs, versions and
+events use stable ids, so re-running refreshes rows (ages are relative to the run time) without
+duplicating them. `pnpm db:reset && pnpm db:seed` gives a clean database.
+
+| Data | Contents |
+| ---- | -------- |
+| Companies | 9: Stripe, Vercel, Example AI, Datadog, Razorpay, Shopify, Notion (`PAUSED`), GitLab and "Archived Co" (`ARCHIVED`, 2 jobs) |
+| Career sources | One per company across Greenhouse, Ashby, Lever and Workday (Shopify: `shopify/External`). All `isEnabled=false`, so a local crawler never hits real ATSs until an admin enables a source |
+| Jobs | 40, `normalizerVersion=0`, `rawPayload={"seed":true}`, covering every `JobCategory` (3 `NON_ENGINEERING`), `Seniority`, `WorkplaceType` and `Region`; USD, EUR and INR salaries plus none; `firstSeenAt` over the last 45 days, several in the last 24h |
+| Lifecycle | 5 `CLOSED` jobs, 1 hidden job, 1 repost pointing at a closed job, 2 jobs with 2 and 3 versions (matching `JobVersion` rows) |
+| Events | `FIRST_SEEN` for every job; `CLOSED`, `REPOSTED`, `DESCRIPTION_CHANGED` and `SALARY_CHANGED` where they apply, timestamped consistently with the job dates |
+| Crawl runs | 3 per source: `SUCCEEDED`, then `FAILED` with an `errorMessage` (Datadog has one `TIMED_OUT` instead), then `SUCCEEDED` |
+
+Slugs follow `<slugified-title>-<company-slug>-<8 hex of sha1(sourceId+externalId)>` via a local
+helper that TRUEJOBS-14 replaces. `test/seed.test.ts` runs the seed against `truejobs_test` and
+asserts the counts, enum coverage and lifecycle states.
