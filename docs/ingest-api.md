@@ -71,7 +71,7 @@ source then counts a failure, exactly as with `complete(FAILED)`.
 ### POST /v1/ingest/crawl-runs/:runId/heartbeat
 
 Extends the lease. Body: `{}`. Response `200 {"leaseExpiresAt": "..."}`.
-Returns `404` if the run is unknown and `409 RUN_NOT_RUNNING` if the run is not RUNNING.
+Returns `404 RUN_NOT_FOUND` if the run is unknown and `409 RUN_NOT_RUNNING` if the run is not RUNNING.
 
 ### POST /v1/ingest/crawl-runs/:runId/jobs
 
