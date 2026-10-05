@@ -9,7 +9,7 @@ try {
   process.exit(1);
 }
 
-const app = buildApp({ config });
+const app = await buildApp({ config });
 
 for (const signal of ["SIGINT", "SIGTERM"] as const) {
   process.once(signal, () => {

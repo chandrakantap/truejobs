@@ -1,13 +1,22 @@
 import Fastify, { type FastifyInstance } from "fastify";
+import swagger from "@fastify/swagger";
+import swaggerUi from "@fastify/swagger-ui";
+import {
+  jsonSchemaTransform,
+  jsonSchemaTransformObject,
+  serializerCompiler,
+  validatorCompiler,
+} from "fastify-type-provider-zod";
 import type { Config } from "./config.js";
 import { registerErrorHandlers } from "./plugins/errors.js";
 import { registerHealthRoutes, type HealthOptions } from "./plugins/health.js";
+import { ROUTE_SCOPES, registerRoutes } from "./plugins/routes.js";
 
 export interface BuildAppOptions extends HealthOptions {
   config: Config;
 }
 
-export function buildApp({ config, ...health }: BuildAppOptions): FastifyInstance {
+export async function buildApp({ config, ...health }: BuildAppOptions): Promise<FastifyInstance> {
   const app = Fastify({
     logger: {
       level: config.LOG_LEVEL,
@@ -18,8 +27,25 @@ export function buildApp({ config, ...health }: BuildAppOptions): FastifyInstanc
     },
   });
 
+  app.setValidatorCompiler(validatorCompiler);
+  app.setSerializerCompiler(serializerCompiler);
+
+  await app.register(swagger, {
+    openapi: {
+      openapi: "3.1.0",
+      info: { title: "truejobs API", version: "1.0.0" },
+      tags: ROUTE_SCOPES.map((name) => ({ name })),
+    },
+    transform: jsonSchemaTransform,
+    transformObject: jsonSchemaTransformObject,
+  });
+  if (config.NODE_ENV !== "production") {
+    await app.register(swaggerUi, { routePrefix: "/docs" });
+  }
+
   registerErrorHandlers(app);
   registerHealthRoutes(app, health);
+  await registerRoutes(app);
 
   return app;
 }
