@@ -48,7 +48,6 @@ export async function buildApp({
   }
 
   registerErrorHandlers(app);
-  registerHealthRoutes(app, health);
   await registerRoutes(app);
   const prisma = registerPrisma(app, config.DATABASE_URL);
   registerHealthRoutes(app, {

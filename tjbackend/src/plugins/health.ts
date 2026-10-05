@@ -8,10 +8,15 @@ export interface HealthOptions {
   readinessCheck?: ReadinessCheck;
 }
 
-export function registerHealthRoutes(app: FastifyInstance, options: HealthOptions = {}): void {
+export function registerHealthRoutes(
+  app: FastifyInstance,
+  options: HealthOptions = {},
+): void {
   const readinessCheck = options.readinessCheck ?? (async () => {});
 
-  app.get("/healthz", { schema: { hide: true } }, async () => ({ status: "ok" }));
+  app.get("/healthz", { schema: { hide: true } }, async () => ({
+    status: "ok",
+  }));
 
   app.get("/readyz", { schema: { hide: true } }, async (request, reply) => {
     try {
@@ -19,7 +24,9 @@ export function registerHealthRoutes(app: FastifyInstance, options: HealthOption
       return { status: "ok" };
     } catch (err) {
       request.log.warn({ err }, "readiness check failed");
-      return reply.status(503).send(errorBody("NOT_READY", "Service is not ready"));
+      return reply
+        .status(503)
+        .send(errorBody("NOT_READY", "Service is not ready"));
     }
   });
 }
